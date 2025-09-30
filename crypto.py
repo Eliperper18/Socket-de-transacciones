@@ -85,6 +85,70 @@ class ReplayCache:
         self.q.append((nonce_bytes, now_ts))
         return False
 
+class AckReplayCache:
+    def __init__(self, max_items=10000, window_sec=120):
+        from collections import deque
+        self.max_items = max_items
+        self.window_sec = window_sec
+        self.q = deque()  # (rx_nonce_bytes, ts)
+        self.set = set()
+
+    def _evict(self, now_ts):
+        while self.q and (now_ts - self.q[0][1] > self.window_sec):
+            n, _ = self.q.popleft()
+            self.set.discard(n)
+        while len(self.q) > self.max_items:
+            n, _ = self.q.popleft()
+            self.set.discard(n)
+
+    def seen_or_add(self, nonce_bytes, now_ts):
+        self._evict(now_ts)
+        if nonce_bytes in self.set:
+            return True
+        self.set.add(nonce_bytes)
+        self.q.append((nonce_bytes, now_ts))
+        return False
+
+def verify_ack(k_s2c: bytes, ack: dict, pending_nonces: set, ack_cache: AckReplayCache, skew_sec=60):
+    import hmac, time
+    for f in ("type","status","info","rx_nonce","ts","key_id","mac"):
+        if f not in ack:
+            return False, f"missing:{f}"
+
+    # 1) Verificar MAC del ACK
+    body = {k: ack[k] for k in ("type","status","info","rx_nonce","ts","key_id")}
+    mac_rx = b64d(ack["mac"])
+    mac_ok = hmac.compare_digest(hmac256(k_s2c, canon(body)), mac_rx)
+    if not mac_ok:
+        return False, "mac"
+
+    # 2) Ventana temporal del ACK
+    try:
+        ts = int(ack["ts"])
+    except Exception:
+        return False, "ts-format"
+    now = int(time.time())
+    if abs(now - ts) > skew_sec:
+        return False, "ts-skew"
+
+    # 3) Anti-replay (ACK duplicado) + correspondencia con petición pendiente
+    try:
+        rxn = b64d(ack["rx_nonce"])
+    except Exception:
+        return False, "b64"
+
+    # Debe corresponder a una petición pendiente
+    if ack["rx_nonce"] not in pending_nonces:
+        return False, "unknown-request"
+
+    # No debe haberse visto antes
+    if ack_cache.seen_or_add(rxn, ts):
+        return False, "replay"
+
+    # Si todo OK, el nonce deja de estar pendiente
+    pending_nonces.discard(ack["rx_nonce"])
+    return True, "ok"
+
 # ---------- Construcción de mensajes TX y ACK ----------
 def build_signed_action(k_c2s: bytes, action: str, payload: dict, key_id: str) -> dict:
     ts = int(time.time())

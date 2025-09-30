@@ -2,11 +2,12 @@ import socket
 import json
 import hmac
 
-from crypto import (load_or_create_psk, derive_session_keys, build_signed_action, b64d, canon, hmac256)
+from crypto import (load_or_create_psk, derive_session_keys, build_signed_action, b64d, canon, hmac256, AckReplayCache, verify_ack)
 
 HOST = '127.0.0.1'
 PORT = 11002
-
+pending = set()            # nonces (base64) de peticiones en vuelo
+ack_seen = AckReplayCache(window_sec=120)
 def main():
     
     psk  = load_or_create_psk()
