@@ -1,10 +1,17 @@
 import socket
 import json
+import hmac
+
+from crypto import (load_or_create_psk, derive_session_keys, build_signed_action, b64d, canon, hmac256)
 
 HOST = '127.0.0.1'
 PORT = 11002
 
 def main():
+    
+    psk  = load_or_create_psk()
+    keys = derive_session_keys(psk, key_id="v1")
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST,PORT))
 
@@ -28,8 +35,12 @@ def main():
                 msg = {"accion": "login", "username": username, "password": password}
 
             elif accion == "transaccion":
-                data = input("Introduce transacción (CuentaOrigen,CuentaDestino,Cantidad): ")
-                msg = {"accion": "transaccion", "data": data}
+                from_acc = input("Cuenta ORIGEN: ")
+                to_acc   = input("Cuenta DESTINO: ")
+                amount   = float(input("Cantidad: "))
+                payload  = {"from": from_acc, "to": to_acc, "amount": amount}
+                # construir mensaje firmado con 'accion'
+                msg = build_signed_action(keys["k_c2s"], "transaccion", payload, keys["key_id"])
 
             elif accion == "logout":
                 msg = {"accion": "logout"}
@@ -43,7 +54,20 @@ def main():
 
             # recibimos respuesta
             resp = s.recv(1024)
+            txt = resp.decode()
             print(f"[Cliente] Respuesta del servidor: {resp.decode()}")
+
+            try:
+                obj = json.loads(txt)
+            except Exception:
+                continue
+
+            if isinstance(obj, dict) and obj.get("type") == "ack":
+                body   = {k: obj[k] for k in ("type","status","info","rx_nonce","ts","key_id")}
+                mac_rx = b64d(obj.get("mac",""))
+                mac_ok = hmac.compare_digest(hmac256(keys["k_s2c"], canon(body)), mac_rx)
+                print("[Cliente] Verificación ACK:", "OK" if mac_ok else "MAC INVÁLIDO")
+
 
 if __name__ == '__main__':
     main()
