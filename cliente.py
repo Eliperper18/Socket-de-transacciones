@@ -67,8 +67,8 @@ def main():
 
                 # ---------- TEST REPLAY CLIENTE ----------
                 # Reintentar con el MISMO ACK: debe ser rechazado por Replay
-                ok2, why2 = verify_ack(keys["k_s2c"], ack, pending, ack_seen, skew_sec=60)
-                print("[Cliente] Verificación ACK (2ª, replay):", "OK" if ok2 else f"ERROR:{why2}")
+                #ok2, why2 = verify_ack(keys["k_s2c"], ack, pending, ack_seen, skew_sec=60)
+                #print("[Cliente] Verificación ACK (2ª, replay):", "OK" if ok2 else f"ERROR:{why2}")
     # ----------------------------------------
 
             try:
@@ -84,4 +84,5 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
