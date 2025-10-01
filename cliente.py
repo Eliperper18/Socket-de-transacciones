@@ -42,6 +42,8 @@ def main():
                 payload  = {"from": from_acc, "to": to_acc, "amount": amount}
                 # construir mensaje firmado con 'accion'
                 msg = build_signed_action(keys["k_c2s"], "transaccion", payload, keys["key_id"])
+                pending.add(msg["nonce"])
+                s.sendall((json.dumps(msg) + "\n").encode())
 
             elif accion == "logout":
                 msg = {"accion": "logout"}
@@ -56,7 +58,18 @@ def main():
             # recibimos respuesta
             resp = s.recv(1024)
             txt = resp.decode()
+            ack = json.loads(resp.decode())
             print(f"[Cliente] Respuesta del servidor: {resp.decode()}")
+            
+            if ack.get("type") == "ack":
+                ok, why = verify_ack(keys["k_s2c"], ack, pending, ack_seen, skew_sec=60)
+                print("[Cliente] Verificación ACK (1ª):", "OK" if ok else f"ERROR:{why}")
+
+                # ---------- TEST REPLAY CLIENTE ----------
+                # Reintentar con el MISMO ACK: debe ser rechazado por Replay
+                ok2, why2 = verify_ack(keys["k_s2c"], ack, pending, ack_seen, skew_sec=60)
+                print("[Cliente] Verificación ACK (2ª, replay):", "OK" if ok2 else f"ERROR:{why2}")
+    # ----------------------------------------
 
             try:
                 obj = json.loads(txt)
