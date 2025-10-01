@@ -8,15 +8,21 @@ def canon(obj) -> bytes:
     return json.dumps(obj, separators=(',', ':'), sort_keys=True, ensure_ascii=False).encode()
 
 # ---------- HMAC SHA-256 ----------
+# Recibe una clave secreta y un mensaje a auntenticar y devuleve hash de 32 bytes.
 def hmac256(key: bytes, msg: bytes) -> bytes:
     return hmac.new(key, msg, hashlib.sha256).digest()
-
+# pasa de bytes a string
 def b64e(b: bytes) -> str: return base64.b64encode(b).decode()
+# pasa de string a bytes
 def b64d(s: str) -> bytes: return base64.b64decode(s.encode(), validate=True)
 
 # ---------- HKDF (SHA-256) ----------
+# hkdf_extract --> Recibe un "salt" en bytes para más seguridad 
+                # recibe una un salt 
+                # recibe una calve maestra 
 def hkdf_extract(salt: bytes, ikm: bytes) -> bytes:
     return hmac.new(salt, ikm, hashlib.sha256).digest()
+    
 
 def hkdf_expand(prk: bytes, info: bytes, length: int) -> bytes:
     out, t = b"", b""
@@ -215,3 +221,4 @@ def verify_signed_action(k_c2s: bytes, msg: dict, expected_action: str, replay_c
         return False, "replay"
 
     return True, "ok"
+
