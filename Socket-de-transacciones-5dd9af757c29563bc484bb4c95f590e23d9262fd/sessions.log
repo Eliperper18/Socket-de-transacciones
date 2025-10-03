@@ -1,0 +1,23 @@
+[2025-10-02 12:00:43][LOGIN] pplu desde ('127.0.0.1', 63970)
+[2025-10-02 12:01:33][LOGOUT] pplu desde ('127.0.0.1', 63970)
+[2025-10-03 11:41:04][LOGIN FAIL] admin desde ('127.0.0.1', 51143), 2 intentos restantes
+[2025-10-03 11:41:26][LOGIN FAIL] admin desde ('127.0.0.1', 51143), 2 intentos restantes
+[2025-10-03 11:42:49][LOGIN FAIL] admin desde ('127.0.0.1', 51143), 2 intentos restantes
+[2025-10-03 11:49:48][LOGIN FAIL] admin desde ('127.0.0.1', 58481), 2 intentos restantes
+[2025-10-03 11:50:08][LOGIN FAIL] admin desde ('127.0.0.1', 58481), 2 intentos restantes
+[2025-10-03 11:56:18][LOGIN FAIL] admin desde ('127.0.0.1', 49172), 2 intentos restantes
+[2025-10-03 11:56:25][LOGIN FAIL] admin desde ('127.0.0.1', 49172), 1 intentos restantes
+[2025-10-03 11:56:56][Bloqueo] Demasiados intentos fallados desde ('127.0.0.1', 49172)
+[2025-10-03 11:58:20][LOGIN FAIL] cliente1 desde ('127.0.0.1', 49172), 2 intentos restantes
+[2025-10-03 11:58:42][LOGIN SUCCESS] cliente1 desde ('127.0.0.1', 49172)
+[2025-10-03 11:59:08][LOGOUT] cliente1 (desconexión inesperada) desde ('127.0.0.1', 49172)
+[2025-10-03 12:32:21][LOGIN FAIL] cliente1 desde ('127.0.0.1', 58803), 2 intentos restantes
+[2025-10-03 12:32:53][LOGIN SUCCESS] cliente1 desde ('127.0.0.1', 58803)
+[2025-10-03 12:36:15][LOGIN FAIL] cliente1 desde ('127.0.0.1', 62776), 2 intentos restantes
+[2025-10-03 12:36:30][LOGIN FAIL] cliente1 desde ('127.0.0.1', 62776), 1 intentos restantes
+[2025-10-03 12:37:31][LOGIN SUCCESS] cliente1 desde ('127.0.0.1', 62776)
+[2025-10-03 20:33:53][LOGIN SUCCESS] admin desde ('127.0.0.1', 54108)
+[2025-10-03 20:34:18][LOGOUT] admin desde ('127.0.0.1', 54108)
+[2025-10-03 20:34:31][LOGIN FAIL] admin desde ('127.0.0.1', 54108), 2 intentos restantes
+[2025-10-03 20:34:55][LOGIN FAIL] admin desde ('127.0.0.1', 54108), 1 intentos restantes
+[2025-10-03 20:35:19][Bloqueo] Demasiados intentos fallados desde ('127.0.0.1', 54108)
